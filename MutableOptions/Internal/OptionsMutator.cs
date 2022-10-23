@@ -6,7 +6,6 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using System.Reflection;
 
     internal sealed class OptionsMutator<TOptions> : IOptionsMutator<TOptions>
         where TOptions : class
@@ -58,23 +57,18 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
 
             var binderOptions = new BinderOptions();
             mutatorConfiguration?.ConfigureBinderOptions(binderOptions);
-            var bindingFlags = BindingFlags.Instance | BindingFlags.Public;
-            if (binderOptions.BindNonPublicProperties)
-            {
-                bindingFlags |= BindingFlags.NonPublic;
-            }
 
-            var properties = typeof(TOptions).GetProperties(bindingFlags);
-            foreach (var propertyInfo in properties)
+            var properties = OptionsPropertiesCache<TOptions>.EnumerateProperties(binderOptions.BindNonPublicProperties);
+            foreach (var (propertyInfo, getter) in properties)
             {
-                var oldPropertyValue = propertyInfo.GetValue(oldValue);
-                var newPropertyValue = propertyInfo.GetValue(newValue);
+                var oldPropertyValue = getter(oldValue);
+                var newPropertyValue = getter(newValue);
 
                 if (oldPropertyValue is null)
                 {
                     if (newPropertyValue is not null)
                     {
-                        UpdateConfigurationValue(propertyInfo, newPropertyValue, name);
+                        UpdateConfigurationValue(propertyInfo.Name, newPropertyValue, name);
                         isChanged = true;
                     }
 
@@ -83,7 +77,7 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
 
                 if (!oldPropertyValue.Equals(newPropertyValue))
                 {
-                    UpdateConfigurationValue(propertyInfo, newPropertyValue, name);
+                    UpdateConfigurationValue(propertyInfo.Name, newPropertyValue, name);
                     isChanged = true;
                 }
             }
@@ -102,7 +96,7 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
             return isChanged;
         }
 
-        private void UpdateConfigurationValue(PropertyInfo propertyInfo, object? newPropertyValue, string optionsName)
+        private void UpdateConfigurationValue(string propertyName, object? newPropertyValue, string optionsName)
         {
             var value = SerializeValue(newPropertyValue);
 
@@ -112,7 +106,7 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
             {
                 if (namedOptionsConfiguration.Name == optionsName)
                 {
-                    namedOptionsConfiguration.Configuration[propertyInfo.Name] = value;
+                    namedOptionsConfiguration.Configuration[propertyName] = value;
                 }
             }
         }
