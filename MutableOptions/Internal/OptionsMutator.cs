@@ -1,5 +1,6 @@
 namespace Microsoft.Extensions.Options.Mutable.Internal
 {
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options.Mutable.Annotations;
     using System;
     using System.Collections.Generic;
@@ -14,26 +15,26 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
         private readonly IOptionsMonitorCache<TOptions> _cache;
         private readonly IEnumerable<IOptionsMutatorChangeTokenSource<TOptions>> _mutatorChangeTokenSources;
         private readonly IEnumerable<INamedOptionsConfiguration<TOptions>> _configurations;
-        private readonly IEnumerable<INamedOptionsEqualityComparer<TOptions>> _equalityComparers;
+        private readonly IEnumerable<INamedOptionsMutatorConfiguration<TOptions>> _mutatorConfigurations;
 
         public OptionsMutator(
             IOptionsMonitor<TOptions> optionsMonitor,
             IOptionsMonitorCache<TOptions> cache,
             IEnumerable<IOptionsMutatorChangeTokenSource<TOptions>> mutatorChangeTokenSources,
             IEnumerable<INamedOptionsConfiguration<TOptions>> configurations,
-            IEnumerable<INamedOptionsEqualityComparer<TOptions>> equalityComparers)
+            IEnumerable<INamedOptionsMutatorConfiguration<TOptions>> mutatorConfigurations)
         {
             Argument.NotNull(optionsMonitor);
             Argument.NotNull(cache);
             Argument.NotNull(mutatorChangeTokenSources);
             Argument.NotNull(configurations);
-            Argument.NotNull(equalityComparers);
+            Argument.NotNull(mutatorConfigurations);
 
             _optionsMonitor = optionsMonitor;
             _cache = cache;
             _mutatorChangeTokenSources = mutatorChangeTokenSources;
             _configurations = configurations;
-            _equalityComparers = equalityComparers;
+            _mutatorConfigurations = mutatorConfigurations;
         }
 
         public bool Mutate(string? name, Func<TOptions, TOptions> mutator)
@@ -45,13 +46,25 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
             var oldValue = _optionsMonitor.Get(name);
             var newValue = mutator(oldValue);
 
-            var equalityComparer = GetEqualityComparer(name);
+            var mutatorConfiguration = GetMutatorConfiguration(name);
+
+            var equalityComparer = mutatorConfiguration?.EqualityComparer ?? EqualityComparer<TOptions>.Default;
             if (equalityComparer.Equals(oldValue, newValue))
             {
                 return false;
             }
 
-            var properties = typeof(TOptions).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            var isChanged = false;
+
+            var binderOptions = new BinderOptions();
+            mutatorConfiguration?.ConfigureBinderOptions(binderOptions);
+            var bindingFlags = BindingFlags.Instance | BindingFlags.Public;
+            if (binderOptions.BindNonPublicProperties)
+            {
+                bindingFlags |= BindingFlags.NonPublic;
+            }
+
+            var properties = typeof(TOptions).GetProperties(bindingFlags);
             foreach (var propertyInfo in properties)
             {
                 var oldPropertyValue = propertyInfo.GetValue(oldValue);
@@ -62,6 +75,7 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
                     if (newPropertyValue is not null)
                     {
                         UpdateConfigurationValue(propertyInfo, newPropertyValue, name);
+                        isChanged = true;
                     }
 
                     continue;
@@ -70,10 +84,22 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
                 if (!oldPropertyValue.Equals(newPropertyValue))
                 {
                     UpdateConfigurationValue(propertyInfo, newPropertyValue, name);
+                    isChanged = true;
                 }
             }
 
-            return true;
+            if (isChanged)
+            {
+                foreach (var optionsMutatorChangeTokenSource in _mutatorChangeTokenSources)
+                {
+                    if (optionsMutatorChangeTokenSource.Name == name)
+                    {
+                        optionsMutatorChangeTokenSource.OnMutated();
+                    }
+                }
+            }
+
+            return isChanged;
         }
 
         private void UpdateConfigurationValue(PropertyInfo propertyInfo, object? newPropertyValue, string optionsName)
@@ -89,19 +115,11 @@ namespace Microsoft.Extensions.Options.Mutable.Internal
                     namedOptionsConfiguration.Configuration[propertyInfo.Name] = value;
                 }
             }
-
-            foreach (var optionsMutatorChangeTokenSource in _mutatorChangeTokenSources)
-            {
-                if (optionsMutatorChangeTokenSource.Name == optionsName)
-                {
-                    optionsMutatorChangeTokenSource.OnMutated();
-                }
-            }
         }
 
-        private IEqualityComparer<TOptions> GetEqualityComparer(string name)
+        private INamedOptionsMutatorConfiguration<TOptions>? GetMutatorConfiguration(string name)
         {
-            return _equalityComparers.FirstOrDefault(comparer => comparer.Name == name)?.EqualityComparer ?? EqualityComparer<TOptions>.Default;
+            return _mutatorConfigurations.FirstOrDefault(comparer => comparer.Name == name);
         }
 
         private static string? SerializeValue(object? value)

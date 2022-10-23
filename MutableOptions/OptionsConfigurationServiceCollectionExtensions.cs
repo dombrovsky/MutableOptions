@@ -28,6 +28,12 @@ namespace Microsoft.Extensions.Options.Mutable
             return services.ConfigureMutable(name, config, configureBinder, EqualityComparer<TOptions>.Default);
         }
 
+        public static IServiceCollection ConfigureMutable<TOptions>(this IServiceCollection services, IConfiguration config, Action<BinderOptions> configureBinder)
+            where TOptions : class, IEquatable<TOptions>
+        {
+            return services.ConfigureMutable(Options.DefaultName, config, configureBinder, EqualityComparer<TOptions>.Default);
+        }
+
         public static IServiceCollection ConfigureMutable<TOptions>(this IServiceCollection services, IConfiguration config, IEqualityComparer<TOptions> equalityComparer)
             where TOptions : class
         {
@@ -38,6 +44,12 @@ namespace Microsoft.Extensions.Options.Mutable
             where TOptions : class
         {
             return services.ConfigureMutable(Options.DefaultName, config, configureBinder, equalityComparer);
+        }
+
+        public static IServiceCollection ConfigureMutable<TOptions>(this IServiceCollection services, string name, IConfiguration config, IEqualityComparer<TOptions> equalityComparer)
+            where TOptions : class
+        {
+            return services.ConfigureMutable(name, config, _ => { }, equalityComparer);
         }
 
         public static IServiceCollection ConfigureMutable<TOptions>(this IServiceCollection services, string name, IConfiguration config, Action<BinderOptions> configureBinder, IEqualityComparer<TOptions> equalityComparer)
@@ -56,7 +68,7 @@ namespace Microsoft.Extensions.Options.Mutable
             services.AddSingleton<IOptionsChangeTokenSource<TOptions>>(mutatorChangeTokenSource);
 
             services.AddSingleton<INamedOptionsConfiguration<TOptions>>(new NamedOptionsConfiguration<TOptions>(name, config));
-            services.AddSingleton<INamedOptionsEqualityComparer<TOptions>>(new NamedOptionsEqualityComparer<TOptions>(name, equalityComparer));
+            services.AddSingleton<INamedOptionsMutatorConfiguration<TOptions>>(new NamedOptionsMutatorConfiguration<TOptions>(name, equalityComparer, configureBinder));
 
             return services;
         }
