@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<LangVersion>10</LangVersion>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
+		<Nullable>enable</Nullable>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<Deterministic>true</Deterministic>
+		<RootNamespace>Microsoft.Extensions.Options.Mutable</RootNamespace>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PackageId>MutableOptions</PackageId>
+		<Version>1.0.0-alpha</Version>
+		<Authors>Volodymyr Dombrovskyi</Authors>
+		<Copyright>Copyright (c) 2022 Volodymyr Dombrovskyi</Copyright>
+		<PackageTags>options,ioptions,ioptionsmonitor,mutableoptionsmonitor,optionsmutator,mutable,writeable</PackageTags>
+		<Description>Commonly Used Types:
+Microsoft.Extensions.Options.Mutable.IOptionsMutator
+Microsoft.Extensions.Options.Mutable.IMutableOptionsMonitor</Description>
+		<RepositoryUrl>https://github.com/dombrovsky/MutableOptions.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageProjectUrl>https://github.com/dombrovsky/MutableOptions</PackageProjectUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<RunCodeAnalysis>false</RunCodeAnalysis>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
+		<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+		<CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\MutableOptions.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.CLSCompliant">
+			<_Parameter1>true</_Parameter1>
+			<_Parameter1_TypeName>System.Boolean</_Parameter1_TypeName>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+    <ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
+
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
+	</ItemGroup>
+
+    <ItemGroup>
+		<None Include="..\LICENSE" Pack="true" PackagePath="\" />
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+</Project>
