@@ -14,7 +14,9 @@
 		<Authors>Volodymyr Dombrovskyi</Authors>
 		<Copyright>Copyright (c) 2022 Volodymyr Dombrovskyi</Copyright>
 		<PackageTags>options,ioptions,ioptionsmonitor,mutableoptionsmonitor,optionsmutator,mutable,writeable</PackageTags>
-		<Description>Commonly Used Types:
+		<Description>Extends .NET Options pattern to support writing back to IConfiguration while mutating strongly-typed options.
+
+Commonly Used Types:
 Microsoft.Extensions.Options.Mutable.IOptionsMutator
 Microsoft.Extensions.Options.Mutable.IMutableOptionsMonitor</Description>
 		<RepositoryUrl>https://github.com/dombrovsky/MutableOptions.git</RepositoryUrl>
