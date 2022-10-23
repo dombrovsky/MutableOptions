@@ -24,6 +24,35 @@ namespace MutableOptions.Tests
         }
 
         [Test]
+        public void OptionsMonitor_ReadingCurrentValueFromChangedCallback_ShouldReturnNewValue()
+        {
+            var configData = new[]
+            {
+                new KeyValuePair<string, string>("StringValue", "foo"),
+            };
+
+            using var host = Host.CreateDefaultBuilder(Array.Empty<string>())
+                .ConfigureAppConfiguration(builder => builder.AddInMemoryCollection(configData))
+                .ConfigureServices((context, services) => services.ConfigureMutable<SimpleOptions>(context.Configuration))
+                .Build();
+
+            var optionsMonitor = CreateOptionsMonitor<SimpleOptions>(host.Services);
+            Assert.That(optionsMonitor.CurrentValue.StringValue, Is.Not.EqualTo("bar"));
+
+            var onChangeCalledTimes = 0;
+            optionsMonitor.OnChange(options =>
+            {
+                Assert.That(optionsMonitor.CurrentValue.StringValue, Is.EqualTo("bar").And.EqualTo(options.StringValue));
+                onChangeCalledTimes++;
+            });
+
+            var optionsMutator = CreateSut<SimpleOptions>(host.Services);
+            optionsMutator.Mutate(options => options with { StringValue = "bar" });
+
+            Assert.That(onChangeCalledTimes, Is.EqualTo(1));
+        }
+
+        [Test]
         public void ConfigurationEmpty_WhenMutate_ShouldWriteToConfiguration()
         {
             using var host = Host.CreateDefaultBuilder(Array.Empty<string>())
