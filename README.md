@@ -25,7 +25,7 @@ PM> Install-Package MutableOptions
 ### Features
 - Compatible with all standartd Options patter interfaces, e.g. `IOptions<T>`, `IOptionsSnapshot<T>`, `IOptionsMonitor<T>`, IConfigureOptions<T> etc.
 - Named options are supported. Specify `name` parameter to `IOptionsMutator.Mutate` method to change value of named options.
-- Supports [`BinderOptions`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.binderoptions?view=dotnet-plat-ext-6.0) where it could be specified whether it can detect changed in non-public properties and white them to `IConfiguration`.
+- Supports [`BinderOptions`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.binderoptions?view=dotnet-plat-ext-6.0) where it could be specified whether it can detect changed in non-public properties and write them to `IConfiguration`.
 - Can write values of most primitive types properties in flat options types.
 ***
 **NOTE:** Complex hierarchical options types, that contain nested classes or collections, is not supported!
