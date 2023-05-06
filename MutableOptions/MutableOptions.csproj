@@ -21,7 +21,7 @@ Microsoft.Extensions.Options.Mutable.IOptionsMutator
 Microsoft.Extensions.Options.Mutable.IMutableOptionsMonitor</Description>
 		<RepositoryUrl>https://github.com/dombrovsky/MutableOptions.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageProjectUrl>https://github.com/dombrovsky/MutableOptions</PackageProjectUrl>
+		<PackageProjectUrl>https://dombrovsky.github.io/MutableOptions</PackageProjectUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 
