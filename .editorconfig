@@ -258,6 +258,7 @@ dotnet_diagnostic.sa1600.severity = none
 dotnet_diagnostic.SA1106.severity=suggestion
 
 # NET Analyzers
+dotnet_diagnostic.ca1812.severity = none
 dotnet_diagnostic.ca1848.severity = none
 dotnet_diagnostic.CA1040.severity=suggestion
 

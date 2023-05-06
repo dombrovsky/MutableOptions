@@ -10,7 +10,7 @@
 
 	<PropertyGroup>
 		<PackageId>MutableOptions</PackageId>
-		<Version>1.0.0-alpha</Version>
+		<Version>1.0.0</Version>
 		<Authors>Volodymyr Dombrovskyi</Authors>
 		<Copyright>Copyright (c) 2022 Volodymyr Dombrovskyi</Copyright>
 		<PackageTags>options,ioptions,ioptionsmonitor,mutableoptionsmonitor,optionsmutator,mutable,writeable</PackageTags>
@@ -25,11 +25,15 @@ Microsoft.Extensions.Options.Mutable.IMutableOptionsMonitor</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 
-		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+  		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -57,7 +61,7 @@ Microsoft.Extensions.Options.Mutable.IMutableOptionsMonitor</Description>
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
 
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
 	</ItemGroup>
 
     <ItemGroup>
